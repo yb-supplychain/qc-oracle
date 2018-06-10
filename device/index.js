@@ -3,15 +3,13 @@ const express = require('express');
 const { randomRange, randomBytes } = require('bcrypto');
 const constants = require('../constants');
 const { createKeyPair, readKeyPair } = require('../crypto');
-const { addPubkey } = require('../keyserver');
 const assert = require('assert')
 const bcurl = require('bcurl');
 
-
 class Device {
-  constructor(port, keyServerURI, datastore='memory') {
+  constructor(name, port, keyServerURI, datastore='memory') {
     this.app = express();
-    this.name = null;
+    this.name = name;
     this.privkeypem = null;
     this.pubkeypem = null;
 
@@ -28,7 +26,6 @@ class Device {
 
   init() {
     this.registerRoutes();
-    this.getName();
     this.getKeys();
     this.tryRegisterKeyServer();
     this.start();
@@ -36,18 +33,6 @@ class Device {
 
   start() {
     this.app.listen(PORT, () => console.log(`listening on ${PORT}`));
-  }
-
-  getName() {
-    let name;
-    try {
-      name = fs.readFileSync(`${constants.HOMEDIR}/${constants.NAMEFILE}`).toString();
-    } catch (e) {
-      name = randomBytes(4).toString('hex');
-      fs.writeFileSync(`${constants.HOMEDIR}/${constants.NAMEFILE}`, name);
-    } finally {
-      this.name = name;
-    }
   }
 
   // try to read keys, otherwise create them
@@ -69,6 +54,7 @@ class Device {
       assert(this.name !== null);
       this.addPubKey(this.type, this.name, this.pubkeypem);
     } catch (e) {
+      console.log(e);
       // TODO: differentiate between
       // key already exists
       // cannot connect to server
@@ -76,7 +62,6 @@ class Device {
   }
 
   async addPubKey(type, name, pem) {
-    // type/id
     try {
       const response = await this.client.post(`/pubkey/${type}/${name}`, { pubkey: pem })
       console.log(response)
