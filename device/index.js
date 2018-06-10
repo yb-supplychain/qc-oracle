@@ -30,7 +30,6 @@ class Device {
     this.registerRoutes();
     this.getKeys();
     this.tryRegisterKeyServer();
-    this.mock()
     this.start();
   }
 
@@ -38,9 +37,9 @@ class Device {
     this.server = this.app.listen(this.port, () => console.log(`listening on ${this.port}`));
   }
 
-  mock() {
+  attach() {
     let data;
-    setTimeout(() => {
+    setInterval(() => {
       data = this.mockData({
         'temperature': '',
         'location': '',
@@ -51,7 +50,7 @@ class Device {
       log(`datapoint: ${JSON.stringify(data)}`)
       // post data to chain
       // get order, update it sign it
-    }, 100)
+    }, 10000)
   }
 
 
@@ -107,6 +106,10 @@ class Device {
       const response = this.mockData(query);
       log(`data: ${JSON.stringify(response)}`)
       res.json(response);
+    });
+    this.app.post('/attach', (req, res) => {
+      this.attach();
+      res.json({ message: 'success' })
     });
   }
   // TODO: rename input
