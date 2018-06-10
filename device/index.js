@@ -6,10 +6,12 @@ const { createKeyPair, readKeyPair } = require('../crypto');
 const assert = require('assert')
 const bcurl = require('bcurl');
 const { log } = require('../utils');
+const bodyParser = require('body-parser');
 
 class Device {
   constructor(name, port, keyServerURI, datastore='memory') {
     this.app = express();
+    this.app.use(bodyParser.json({ extended: true }));
     this.name = name;
     this.privkeypem = null;
     this.pubkeypem = null;
@@ -37,7 +39,7 @@ class Device {
     this.server = this.app.listen(this.port, () => console.log(`listening on ${this.port}`));
   }
 
-  attach() {
+  attach(orderId) {
     let data;
     setInterval(() => {
       data = this.mockData({
@@ -108,7 +110,10 @@ class Device {
       res.json(response);
     });
     this.app.post('/attach', (req, res) => {
-      this.attach();
+      const { body } = req;
+      // order id in post body
+      const { orderId } = body;
+      this.attach(orderId);
       res.json({ message: 'success' })
     });
   }

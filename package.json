@@ -20,6 +20,7 @@
   "dependencies": {
     "bcrypto": "^0.3.1",
     "bcurl": "^0.1.0",
+    "body-parser": "^1.18.3",
     "express": "^4.16.3",
     "ursa": "^0.9.4"
   }
