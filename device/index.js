@@ -20,7 +20,7 @@ class Device {
 
     // for keyserver endpoint
     this.type = 'device';
-    console.log(`using key server uri: ${keyServerURI}`);
+    log(`using key server uri: ${keyServerURI}`);
     this.client = bcurl.client(keyServerURI);
 
     this.init();
@@ -30,12 +30,30 @@ class Device {
     this.registerRoutes();
     this.getKeys();
     this.tryRegisterKeyServer();
+    this.mock()
     this.start();
   }
 
   start() {
-    this.app.listen(this.port, () => console.log(`listening on ${this.port}`));
+    this.server = this.app.listen(this.port, () => console.log(`listening on ${this.port}`));
   }
+
+  mock() {
+    let data;
+    setTimeout(() => {
+      data = this.mockData({
+        'temperature': '',
+        'location': '',
+        'air': '',
+        'humidity': '',
+        'light': ''
+      });
+      log(`datapoint: ${JSON.stringify(data)}`)
+      // post data to chain
+      // get order, update it sign it
+    }, 100)
+  }
+
 
   // try to read keys, otherwise create them
   getKeys() {
@@ -64,6 +82,7 @@ class Device {
   }
 
   async addPubKey(type, name, pem) {
+    log(`type: ${type}, name: ${name}, pem: ${pem}`);
     try {
       await this.client.post(`pubkey/${type}/${name}`, { key: pem })
       log(`added pubkey: ${name}`);
@@ -72,38 +91,50 @@ class Device {
     }
   }
 
+  // this doesn't work -_-
+  close() {
+    this.server.close();
+  }
+
   registerRoutes() {
+    log('register routes');
     this.app.get('/', (req, res) => {
       res.json({ message: 'status OK' });
     });
 
     this.app.get('/data', (req, res) => {
       const { query } = req;
-      const response = {};
-      for ([key,val] of Object.entries(query)) {
-        switch (key) {
-          case 'weight':
-            response.weight = randomRange(1, 1000);
-            break;
-          case 'location':
-            response.location = constants.LOCATIONS[randomRange(0, constants.LOCATIONS.length-1)]
-            break;
-          case 'temperature':
-            response.temperature = randomRange(50, 100)
-            break;
-          case 'light':
-            response.light = constants.LIGHT[randomRange(0, constants.LIGHT.length)]
-            break;
-          case 'air':
-            response.air = constants.AIR[randomRange(0, constants.AIR.length-1)]
-            break;
-          case 'humidity':
-            response.humidity = randomRange(50, 100)
-            break;
-        }
-      }
+      const response = this.mockData(query);
+      log(`data: ${JSON.stringify(response)}`)
       res.json(response);
     });
+  }
+  // TODO: rename input
+  mockData(query) {
+    const response = {};
+    for (let [key,val] of Object.entries(query)) {
+      switch (key) {
+        case 'weight':
+          response.weight = randomRange(1, 1000);
+          break;
+        case 'location':
+          response.location = constants.LOCATIONS[randomRange(0, constants.LOCATIONS.length-1)]
+          break;
+        case 'temperature':
+          response.temperature = randomRange(50, 100)
+          break;
+        case 'light':
+          response.light = constants.LIGHT[randomRange(0, constants.LIGHT.length)]
+          break;
+        case 'air':
+          response.air = constants.AIR[randomRange(0, constants.AIR.length-1)]
+          break;
+        case 'humidity':
+          response.humidity = randomRange(50, 100)
+          break;
+      }
+    }
+    return response;
   }
 }
 

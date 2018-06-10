@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 module.exports = {
   LOCATIONS: [
     'New York',
@@ -17,5 +19,13 @@ module.exports = {
   PUBKEY: 'pub.pem',
   PRIVKEY: 'priv.pem',
   NAMEFILE: 'name',
-  DATASTORE: 'memory'
+  DATASTORE: 'memory',
+  FACTOM_OPTIONS: {
+    url: 'https://apiplus-api-sandbox-testnet.factom.com/v1/',
+    headers: {
+      "Content-Type": "application/json",
+      "factom-provider-token": fs.readFileSync(`${__dirname}/secrets.env`).toString()
+    }
+  },
+  ORDER_TAG: 'ybsc_devices'
 };
