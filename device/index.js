@@ -5,6 +5,7 @@ const constants = require('../constants');
 const { createKeyPair, readKeyPair } = require('../crypto');
 const assert = require('assert')
 const bcurl = require('bcurl');
+const { log } = require('../utils');
 
 class Device {
   constructor(name, port, keyServerURI, datastore='memory') {
@@ -19,6 +20,7 @@ class Device {
 
     // for keyserver endpoint
     this.type = 'device';
+    console.log(`using key server uri: ${keyServerURI}`);
     this.client = bcurl.client(keyServerURI);
 
     this.init();
@@ -32,7 +34,7 @@ class Device {
   }
 
   start() {
-    this.app.listen(PORT, () => console.log(`listening on ${PORT}`));
+    this.app.listen(this.port, () => console.log(`listening on ${this.port}`));
   }
 
   // try to read keys, otherwise create them
@@ -63,8 +65,8 @@ class Device {
 
   async addPubKey(type, name, pem) {
     try {
-      const response = await this.client.post(`/pubkey/${type}/${name}`, { pubkey: pem })
-      console.log(response)
+      await this.client.post(`pubkey/${type}/${name}`, { key: pem })
+      log(`added pubkey: ${name}`);
     } catch (e) {
       console.log(e);
     }
@@ -105,3 +107,4 @@ class Device {
   }
 }
 
+module.exports = Device;

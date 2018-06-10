@@ -17,4 +17,5 @@ module.exports = {
   PUBKEY: 'pub.pem',
   PRIVKEY: 'priv.pem',
   NAMEFILE: 'name',
+  DATASTORE: 'memory'
 };
