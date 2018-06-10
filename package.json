@@ -1,0 +1,26 @@
+{
+  "name": "@bpanel/qc-oracle",
+  "version": "1.0.0",
+  "description": "YB Supply Chain oracle server for verifying delivery conditions",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yb-supplychain/qc-oracle.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/yb-supplychain/qc-oracle/issues"
+  },
+  "homepage": "https://github.com/yb-supplychain/qc-oracle#readme",
+  "dependencies": {
+    "bcrypto": "^0.3.1",
+    "bcurl": "^0.1.0",
+    "express": "^4.16.3",
+    "ursa": "^0.9.4"
+  }
+}
